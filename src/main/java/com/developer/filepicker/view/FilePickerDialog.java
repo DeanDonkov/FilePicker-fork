@@ -16,13 +16,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.developer.filepicker.R;
-import com.developer.filepicker.controller.DialogSelectionListener;
+import com.developer.filepicker.controller.dialogs.DialogSelectionListener;
 import com.developer.filepicker.controller.NotifyItemChecked;
 import com.developer.filepicker.controller.adapters.FileListAdapter;
 import com.developer.filepicker.model.DialogConfigs;
 import com.developer.filepicker.model.DialogProperties;
 import com.developer.filepicker.model.FileListItem;
 import com.developer.filepicker.model.MarkedCopyItemList;
+import com.developer.filepicker.model.MarkedDecryptItemList;
 import com.developer.filepicker.model.MarkedDeleteItemList;
 import com.developer.filepicker.model.MarkedItemList;
 import com.developer.filepicker.utils.ExtensionFilter;
@@ -44,7 +45,9 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
     private ListView listView;
     private TextView dname, dir_path, title;
     private DialogProperties properties;
-    private DialogSelectionListener callbacks;
+
+    private DialogSelectionListener dialogSelectionListener;
+
     private ArrayList<FileListItem> internalList;
     private ExtensionFilter filter;
     private FileListAdapter mFileListAdapter;
@@ -87,7 +90,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
         setContentView(R.layout.dialog_main);
         listView = findViewById(R.id.fileList);
         select = findViewById(R.id.select);
-        int size = MarkedItemList.getFileCount();
+        int size = MarkedItemList.getFileCount() + MarkedDeleteItemList.getFileCount() + MarkedCopyItemList.getFileCount() + MarkedDecryptItemList.getFileCount();
         if (size == 0) {
             select.setEnabled(false);
             int color;
@@ -112,10 +115,14 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
                 String[] paths = MarkedItemList.getSelectedPaths();
                 String[] pathstodelete = MarkedDeleteItemList.getSelectedPaths();
                 String[] pathstocopy = MarkedCopyItemList.getSelectedPaths();
-                if (callbacks != null) {
-                    callbacks.onSelectedFilePaths(paths);
-                    callbacks.onSelectedFilePathsToRemove(pathstodelete);
-                    callbacks.onSelectedFilePathsToCopy(pathstocopy);
+                String[] pathstodecrypt = MarkedDecryptItemList.getSelectedPaths();
+
+
+                if (dialogSelectionListener != null) {
+                    dialogSelectionListener.onSelectedFilePaths(paths);
+                    dialogSelectionListener.onSelectedFilePathsToRemove(pathstodelete);
+                    dialogSelectionListener.onSelectedFilePathsToCopy(pathstocopy);
+                    dialogSelectionListener.onSelectedFilePathsToDecrypt(pathstodecrypt);
                 }
                 dismiss();
             }
@@ -132,7 +139,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
             public void notifyCheckBoxIsClicked() {
                 positiveBtnNameStr = positiveBtnNameStr == null ?
                         context.getResources().getString(R.string.choose_button_label) : positiveBtnNameStr;
-                int size = MarkedItemList.getFileCount() + MarkedDeleteItemList.getFileCount() + MarkedCopyItemList.getFileCount();
+                int size = MarkedItemList.getFileCount() + MarkedDeleteItemList.getFileCount() + MarkedCopyItemList.getFileCount() + MarkedDecryptItemList.getFileCount();
                 if (size == 0) {
                     select.setEnabled(false);
                     int color;
@@ -170,7 +177,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
             public void notifyDeleteIsClicked() {
                 positiveBtnNameStr = positiveBtnNameStr == null ?
                         context.getResources().getString(R.string.choose_button_label) : positiveBtnNameStr;
-                int size = MarkedItemList.getFileCount() + MarkedDeleteItemList.getFileCount() + MarkedCopyItemList.getFileCount();
+                int size = MarkedItemList.getFileCount() + MarkedDeleteItemList.getFileCount() + MarkedCopyItemList.getFileCount() + MarkedDecryptItemList.getFileCount();
                 if (size == 0) {
                     select.setEnabled(false);
                     int color;
@@ -208,7 +215,45 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
             public void notifyCopyIsClicked() {
                 positiveBtnNameStr = positiveBtnNameStr == null ?
                         context.getResources().getString(R.string.choose_button_label) : positiveBtnNameStr;
-                int size = MarkedItemList.getFileCount() + MarkedDeleteItemList.getFileCount() + MarkedCopyItemList.getFileCount();
+                int size = MarkedItemList.getFileCount() + MarkedDeleteItemList.getFileCount() + MarkedCopyItemList.getFileCount() + MarkedDecryptItemList.getFileCount();
+                if (size == 0) {
+                    select.setEnabled(false);
+                    int color;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                        color = context.getResources().getColor(R.color.colorAccent,
+                                context.getTheme());
+                    } else {
+                        color = context.getResources().getColor(R.color.colorAccent);
+                    }
+                    select.setTextColor(Color.argb(128, Color.red(color), Color.green(color),
+                            Color.blue(color)));
+                    select.setText(positiveBtnNameStr);
+                } else {
+                    select.setEnabled(true);
+                    int color;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                        color = context.getResources().getColor(R.color.colorAccent,
+                                context.getTheme());
+                    } else {
+                        color = context.getResources().getColor(R.color.colorAccent);
+                    }
+                    select.setTextColor(color);
+                    String button_label = positiveBtnNameStr + " (" + size + ") ";
+                    select.setText(button_label);
+                }
+                if (properties.selection_mode == DialogConfigs.SINGLE_MODE) {
+                    /*  If a single file has to be selected, clear the previously checked
+                     *  checkbox from the list.
+                     */
+                    mFileListAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void notifyDecryptIsClicked() {
+                positiveBtnNameStr = positiveBtnNameStr == null ?
+                        context.getResources().getString(R.string.choose_button_label) : positiveBtnNameStr;
+                int size = MarkedItemList.getFileCount() + MarkedDeleteItemList.getFileCount() + MarkedCopyItemList.getFileCount() + MarkedDecryptItemList.getFileCount();
                 if (size == 0) {
                     select.setEnabled(false);
                     int color;
@@ -356,7 +401,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
     }
 
     public void setDialogSelectionListener(DialogSelectionListener callbacks) {
-        this.callbacks = callbacks;
+            this.dialogSelectionListener =  callbacks;
     }
 
     @Override
@@ -401,6 +446,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
                             MarkedItemList.addSelectedItem(item);
                             MarkedDeleteItemList.addSelectedItem(item);
                             MarkedCopyItemList.addSelectedItem(item);
+                            MarkedDecryptItemList.addSelectedItem(item);
                         }
                         break;
 
@@ -415,6 +461,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
                             MarkedItemList.addSelectedItem(item);
                             MarkedDeleteItemList.addSelectedItem(item);
                             MarkedCopyItemList.addSelectedItem(item);
+                            MarkedDecryptItemList.addSelectedItem(item);
                         }
                         break;
 
@@ -429,6 +476,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
                             MarkedItemList.addSelectedItem(item);
                             MarkedDeleteItemList.addSelectedItem(item);
                             MarkedCopyItemList.addSelectedItem(item);
+                            MarkedDecryptItemList.addSelectedItem(item);
                         }
                         break;
                 }
@@ -447,6 +495,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
                                 MarkedItemList.addSelectedItem(item);
                                 MarkedDeleteItemList.addSelectedItem(item);
                                 MarkedCopyItemList.addSelectedItem(item);
+                                MarkedDecryptItemList.addSelectedItem(item);
                             }
                             break;
 
@@ -462,6 +511,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
                                 MarkedItemList.addSelectedItem(item);
                                 MarkedDeleteItemList.addSelectedItem(item);
                                 MarkedCopyItemList.addSelectedItem(item);
+                                MarkedDecryptItemList.addSelectedItem(item);
                             }
                             break;
 
@@ -477,6 +527,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
                                 MarkedItemList.addSelectedItem(item);
                                 MarkedDeleteItemList.addSelectedItem(item);
                                 MarkedCopyItemList.addSelectedItem(item);
+                                MarkedDecryptItemList.addSelectedItem(item);
                             }
                             break;
                     }
@@ -497,7 +548,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
             positiveBtnNameStr = positiveBtnNameStr == null ?
                     context.getResources().getString(R.string.choose_button_label) : positiveBtnNameStr;
             select.setText(positiveBtnNameStr);
-            int size = MarkedItemList.getFileCount();
+            int size = MarkedItemList.getFileCount() + MarkedCopyItemList.getFileCount() + MarkedDeleteItemList.getFileCount() + MarkedDecryptItemList.getFileCount();
             if (size == 0) {
                 select.setText(positiveBtnNameStr);
             } else {
@@ -545,6 +596,7 @@ public class FilePickerDialog extends Dialog implements AdapterView.OnItemClickL
         MarkedItemList.clearSelectionList();
         MarkedDeleteItemList.clearSelectionList();
         MarkedCopyItemList.clearSelectionList();
+        MarkedDecryptItemList.clearSelectionList();
         internalList.clear();
         super.dismiss();
     }

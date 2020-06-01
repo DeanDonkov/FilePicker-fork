@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.developer.filepicker.R;
+import com.developer.filepicker.widget.listeners.OnCheckedChangeListener;
 
 /**
  * @author akshay sunil masram
@@ -52,6 +53,7 @@ public class MaterialCheckbox extends View {
         tick = new Path();
         paint = new Paint();
         bounds = new RectF();
+
         OnClickListener onClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.developer.filepicker.R;
+import com.developer.filepicker.widget.listeners.OnCheckedChangeListener;
 
 public class CopyCheckBox extends View {
     private Context context;

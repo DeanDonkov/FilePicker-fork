@@ -2,6 +2,7 @@ package com.developer.filepicker.controller.adapters;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +18,16 @@ import com.developer.filepicker.model.DialogConfigs;
 import com.developer.filepicker.model.DialogProperties;
 import com.developer.filepicker.model.FileListItem;
 import com.developer.filepicker.model.MarkedCopyItemList;
+import com.developer.filepicker.model.MarkedDecryptItemList;
 import com.developer.filepicker.model.MarkedDeleteItemList;
 import com.developer.filepicker.model.MarkedItemList;
 import com.developer.filepicker.widget.CopyCheckBox;
+import com.developer.filepicker.widget.DecryptCheckBox;
 import com.developer.filepicker.widget.DeleteCheckBox;
 import com.developer.filepicker.widget.MaterialCheckbox;
-import com.developer.filepicker.widget.OnCheckedChangeListener;
+import com.developer.filepicker.widget.listeners.OnCheckedChangeListener;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,7 +96,12 @@ public class FileListAdapter extends BaseAdapter {
             Animation animation = AnimationUtils.loadAnimation(context,
                     R.anim.marked_item_animation);
             view.setAnimation(animation);
-        } else {
+        }else if(MarkedDecryptItemList.hasItem(item.getLocation())){
+            Animation animation = AnimationUtils.loadAnimation(context,
+                    R.anim.marked_item_animation);
+            view.setAnimation(animation);
+        }
+        else {
             Animation animation = AnimationUtils.loadAnimation(context,
                     R.anim.unmarked_item_animation);
             view.setAnimation(animation);
@@ -110,10 +119,12 @@ public class FileListAdapter extends BaseAdapter {
                 holder.checkbox.setVisibility(View.INVISIBLE);
                 holder.btncheckbox2.setVisibility(View.INVISIBLE);
                 holder.btncheckbox3.setVisibility(View.INVISIBLE);
+                holder.btncheckbox4.setVisibility(View.INVISIBLE);
             } else {
                 holder.checkbox.setVisibility(View.VISIBLE);
-                holder.btncheckbox2.setVisibility(View.VISIBLE);
+                holder.btncheckbox2.setVisibility(View.GONE);
                 holder.btncheckbox3.setVisibility(View.VISIBLE);
+                holder.btncheckbox4.setVisibility(View.GONE);
             }
         } else {
             holder.type_icon.setImageResource(R.mipmap.ic_type_file);
@@ -128,10 +139,12 @@ public class FileListAdapter extends BaseAdapter {
                 holder.checkbox.setVisibility(View.INVISIBLE);
                 holder.btncheckbox2.setVisibility(View.INVISIBLE);
                 holder.btncheckbox3.setVisibility(View.INVISIBLE);
+                holder.btncheckbox4.setVisibility(View.INVISIBLE);
             } else {
                 holder.checkbox.setVisibility(View.VISIBLE);
                 holder.btncheckbox2.setVisibility(View.VISIBLE);
                 holder.btncheckbox3.setVisibility(View.VISIBLE);
+                holder.btncheckbox4.setVisibility(View.GONE);
             }
         }
         holder.type_icon.setContentDescription(item.getFilename());
@@ -148,7 +161,19 @@ public class FileListAdapter extends BaseAdapter {
         if (holder.checkbox.getVisibility() == View.VISIBLE) {
             if (i == 0 && item.getFilename().startsWith(context.getString(R.string.label_parent_dir))) {
                 holder.checkbox.setVisibility(View.INVISIBLE);
+                holder.btncheckbox2.setVisibility(View.INVISIBLE);
+                holder.btncheckbox3.setVisibility(View.INVISIBLE);
+                holder.btncheckbox4.setVisibility(View.INVISIBLE);
             }
+
+            if(item.getFilename().endsWith(".encryptedfolder") || item.getFilename().endsWith("encryptedfile")){
+                holder.btncheckbox4.setVisibility(View.VISIBLE);
+                holder.checkbox.setVisibility(View.INVISIBLE);
+                holder.btncheckbox2.setVisibility(View.INVISIBLE);
+                holder.btncheckbox3.setVisibility(View.INVISIBLE);
+
+            }
+
             if (MarkedItemList.hasItem(item.getLocation())) {
                 holder.checkbox.setChecked(true);
             } else {
@@ -161,13 +186,31 @@ public class FileListAdapter extends BaseAdapter {
             }
             if (MarkedCopyItemList.hasItem(item.getLocation())) {
                 holder.btncheckbox3.setChecked(true);
+            }
+            if(MarkedDecryptItemList.hasItem(item.getLocation())){
+                holder.btncheckbox4.setChecked(true);
             } else {
-                holder.btncheckbox3.setChecked(false);
+                holder.btncheckbox4.setChecked(false);
             }
         }
 
 
         holder.checkbox.setOnCheckedChangedListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CopyCheckBox copyCheckBox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(DecryptCheckBox decryptCheckBox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(DeleteCheckBox buttonbox, boolean isChecked) {
+
+            }
+
             @Override
             public void onCheckedChanged(MaterialCheckbox checkbox, boolean isChecked) {
                 item.setMarked(isChecked);
@@ -176,27 +219,35 @@ public class FileListAdapter extends BaseAdapter {
                         MarkedItemList.addSelectedItem(item);
                     } else {
                         MarkedItemList.addSingleFile(item);
-                        if(holder.btncheckbox2.isChecked()){
-                            holder.btncheckbox2.grayOut();
-                        }
                     }
                 } else {
                     MarkedItemList.removeSelectedItem(item.getLocation());
                 }
                 notifyItemChecked.notifyCheckBoxIsClicked();
+                if(holder.btncheckbox2.isChecked()){
+                    holder.btncheckbox2.setChecked(false);
+                    MarkedDeleteItemList.removeSelectedItem(item.getLocation());
+                    notifyItemChecked.notifyDeleteIsClicked();
+                }
+                if(holder.btncheckbox3.isChecked()){
+                    holder.btncheckbox3.setChecked(false);
+                    MarkedCopyItemList.removeSelectedItem(item.getLocation());
+                    notifyItemChecked.notifyCopyIsClicked();
+                }
             }
-
-            @Override
-            public void onCheckedChanged(DeleteCheckBox buttonbox, boolean isChecked) {}
-
-            @Override
-            public void onCheckedChanged(CopyCheckBox copyCheckBox, boolean checked) {}
         });
 
         holder.btncheckbox2.setOnCheckedChangedListener(new OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(MaterialCheckbox checkbox, boolean isChecked) {
+            public void onCheckedChanged(CopyCheckBox copyCheckBox, boolean isChecked) {
+
             }
+
+            @Override
+            public void onCheckedChanged(DecryptCheckBox decryptCheckBox, boolean isChecked) {
+
+            }
+
             @Override
             public void onCheckedChanged(DeleteCheckBox buttonbox, boolean isChecked) {
                 item.setMarked(isChecked);
@@ -210,17 +261,26 @@ public class FileListAdapter extends BaseAdapter {
                     MarkedDeleteItemList.removeSelectedItem(item.getLocation());
                 }
                 notifyItemChecked.notifyDeleteIsClicked();
+                if(holder.checkbox.isChecked()){
+                    MarkedItemList.removeSelectedItem(item.getLocation());
+                    holder.checkbox.setChecked(false);
+                    notifyItemChecked.notifyCheckBoxIsClicked();
+                }
+                if(holder.btncheckbox3.isChecked()){
+                    MarkedCopyItemList.removeSelectedItem(item.getLocation());
+                    holder.btncheckbox3.setChecked(false);
+                    notifyItemChecked.notifyCopyIsClicked();
+                }
             }
+
             @Override
-            public void onCheckedChanged(CopyCheckBox copyCheckBox, boolean checked) {}
+            public void onCheckedChanged(MaterialCheckbox checkbox, boolean isChecked) {
+
+            }
         });
 
         holder.btncheckbox3.setOnCheckedChangedListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(MaterialCheckbox checkbox, boolean isChecked) { }
 
-            @Override
-            public void onCheckedChanged(DeleteCheckBox buttonbox, boolean isChecked) { }
 
             @Override
             public void onCheckedChanged(CopyCheckBox copyCheckBox, boolean isChecked) {
@@ -232,12 +292,91 @@ public class FileListAdapter extends BaseAdapter {
                         MarkedCopyItemList.addSingleFile(item);
                     }
                 } else {
-                    MarkedCopyItemList.removeSelectedItem(item.getLocation());
+                    if(MarkedCopyItemList.hasItem(item.getLocation())){
+                        MarkedCopyItemList.removeSelectedItem(item.getLocation());
+                    }
                 }
                 notifyItemChecked.notifyCopyIsClicked();
+                if(holder.checkbox.isChecked()){
+                    holder.checkbox.setChecked(false);
+                    MarkedItemList.removeSelectedItem(item.getLocation());
+                    notifyItemChecked.notifyCheckBoxIsClicked();
+                }
+                if(holder.btncheckbox2.isChecked()){
+                    holder.btncheckbox2.setChecked(false);
+                    MarkedDeleteItemList.removeSelectedItem(item.getLocation());
+                    notifyItemChecked.notifyDeleteIsClicked();
+                }
             }
+
+            @Override
+            public void onCheckedChanged(DecryptCheckBox decryptCheckBox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(DeleteCheckBox buttonbox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(MaterialCheckbox checkbox, boolean isChecked) {
+
+            }
+
         });
 
+
+        holder.btncheckbox4.setOnCheckedChangedListener(new OnCheckedChangeListener() {
+
+
+            @Override
+            public void onCheckedChanged(CopyCheckBox copyCheckBox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(DecryptCheckBox decryptCheckBox, boolean isChecked) {
+                item.setMarked(isChecked);
+                if (item.isMarked()) {
+                    if (properties.selection_mode == DialogConfigs.MULTI_MODE) {
+                        MarkedDecryptItemList.addSelectedItem(item);
+                    } else {
+                        MarkedDecryptItemList.addSingleFile(item);
+                    }
+                } else {
+                    if(MarkedDecryptItemList.hasItem(item.getLocation())){
+                        MarkedDecryptItemList.removeSelectedItem(item.getLocation());
+                    }
+                }
+                notifyItemChecked.notifyDecryptIsClicked();
+                if(holder.checkbox.isChecked()){
+                    holder.checkbox.setChecked(false);
+                    MarkedItemList.removeSelectedItem(item.getLocation());
+                    notifyItemChecked.notifyCheckBoxIsClicked();
+                }
+                if(holder.btncheckbox2.isChecked()){
+                    holder.btncheckbox2.setChecked(false);
+                    MarkedDeleteItemList.removeSelectedItem(item.getLocation());
+                    notifyItemChecked.notifyDeleteIsClicked();
+                }
+                if(holder.btncheckbox3.isChecked()){
+                    holder.btncheckbox3.setChecked(false);
+                    MarkedCopyItemList.removeSelectedItem(item.getLocation());
+                    notifyItemChecked.notifyDeleteIsClicked();
+                }
+            }
+
+            @Override
+            public void onCheckedChanged(DeleteCheckBox buttonbox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(MaterialCheckbox checkbox, boolean isChecked) {
+
+            }
+        });
 
         return view;
     }
@@ -250,6 +389,7 @@ public class FileListAdapter extends BaseAdapter {
         MaterialCheckbox checkbox;
         DeleteCheckBox btncheckbox2;
         CopyCheckBox btncheckbox3;
+        DecryptCheckBox btncheckbox4;
 
         ViewHolder(View itemView) {
             name = itemView.findViewById(R.id.fname);
@@ -258,6 +398,7 @@ public class FileListAdapter extends BaseAdapter {
             checkbox = itemView.findViewById(R.id.file_mark);
             btncheckbox2 = itemView.findViewById(R.id.button2);
             btncheckbox3 = itemView.findViewById(R.id.button3);
+            btncheckbox4 = itemView.findViewById(R.id.button4);
         }
     }
 

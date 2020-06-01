@@ -7,4 +7,5 @@ public interface NotifyItemChecked {
     void notifyCheckBoxIsClicked();
     void notifyDeleteIsClicked();
     void notifyCopyIsClicked();
+    void notifyDecryptIsClicked();
 }
