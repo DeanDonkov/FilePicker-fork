@@ -15,8 +15,7 @@ import android.view.View;
 import com.developer.filepicker.R;
 import com.developer.filepicker.widget.listeners.OnCheckedChangeListener;
 
-
-public class DeleteCheckBox extends View {
+public class ExtractCheckBox extends View {
 
     private Context context;
     private int minDim;
@@ -26,23 +25,21 @@ public class DeleteCheckBox extends View {
     private OnCheckedChangeListener onCheckedChangeListener;
     private Path tick;
 
-    private boolean isLocked = false;
-
     private Drawable customImage;
 
 
-    public DeleteCheckBox(Context context) {
+    public ExtractCheckBox(Context context) {
         super(context);
         initView(context);
     }
 
-    public DeleteCheckBox(Context context, AttributeSet attrs) {
+    public ExtractCheckBox(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView(context);
-        customImage = context.getResources().getDrawable(R.drawable.del);
+        customImage = context.getResources().getDrawable(R.drawable.extract);
     }
 
-    public DeleteCheckBox(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ExtractCheckBox(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView(context);
     }
@@ -53,11 +50,11 @@ public class DeleteCheckBox extends View {
         tick = new Path();
         paint = new Paint();
         bounds = new RectF();
-        OnClickListener onClickListener = new OnClickListener() {
+        View.OnClickListener onClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
                 setChecked(!checked);
-                onCheckedChangeListener.onCheckedChanged(DeleteCheckBox.this, isChecked());
+                onCheckedChangeListener.onCheckedChanged(ExtractCheckBox.this, isChecked());
             }
         };
 

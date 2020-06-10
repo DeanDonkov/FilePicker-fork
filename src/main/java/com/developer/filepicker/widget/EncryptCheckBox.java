@@ -15,9 +15,7 @@ import android.view.View;
 import com.developer.filepicker.R;
 import com.developer.filepicker.widget.listeners.OnCheckedChangeListener;
 
-
-public class DeleteCheckBox extends View {
-
+public class EncryptCheckBox extends View {
     private Context context;
     private int minDim;
     private Paint paint;
@@ -26,23 +24,25 @@ public class DeleteCheckBox extends View {
     private OnCheckedChangeListener onCheckedChangeListener;
     private Path tick;
 
-    private boolean isLocked = false;
-
     private Drawable customImage;
 
 
-    public DeleteCheckBox(Context context) {
+    public EncryptCheckBox(Context context) {
         super(context);
         initView(context);
     }
 
-    public DeleteCheckBox(Context context, AttributeSet attrs) {
+
+
+    public EncryptCheckBox(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView(context);
-        customImage = context.getResources().getDrawable(R.drawable.del);
+
+            customImage = context.getResources().getDrawable(R.drawable.unnamed);
+
     }
 
-    public DeleteCheckBox(Context context, AttributeSet attrs, int defStyleAttr) {
+    public EncryptCheckBox(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView(context);
     }
@@ -53,11 +53,12 @@ public class DeleteCheckBox extends View {
         tick = new Path();
         paint = new Paint();
         bounds = new RectF();
-        OnClickListener onClickListener = new OnClickListener() {
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setChecked(!checked);
-                onCheckedChangeListener.onCheckedChanged(DeleteCheckBox.this, isChecked());
+                onCheckedChangeListener.onCheckedChanged(EncryptCheckBox.this, isChecked());
             }
         };
 
@@ -106,12 +107,6 @@ public class DeleteCheckBox extends View {
         setMeasuredDimension(width, height);
     }
 
-    public void grayOut(){
-        this.setClickable(false);
-        this.setChecked(false);
-        this.setAlpha(0.7f);
-    }
-
     public boolean isChecked() {
         return checked;
     }
@@ -122,6 +117,6 @@ public class DeleteCheckBox extends View {
     }
 
     public void setOnCheckedChangedListener(OnCheckedChangeListener onCheckedChangeListener) {
-        this.onCheckedChangeListener = onCheckedChangeListener;
+        this.onCheckedChangeListener =  onCheckedChangeListener;
     }
 }
