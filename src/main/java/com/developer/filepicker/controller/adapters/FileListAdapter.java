@@ -164,7 +164,7 @@ public class FileListAdapter extends BaseAdapter {
                 holder.extractCheckBox.setVisibility(View.INVISIBLE);
             } else {
                 holder.checkbox.setVisibility(View.VISIBLE);
-                holder.deleteCheckBox.setVisibility(View.VISIBLE);
+                holder.deleteCheckBox.setVisibility(View.INVISIBLE);
                 holder.copyCheckBox.setVisibility(View.VISIBLE);
                 holder.encryptCheckBox.setVisibility(View.GONE);
                 holder.decryptCheckBox.setVisibility(View.GONE);
