@@ -27,12 +27,14 @@ import com.developer.filepicker.model.MarkedEncryptItemList;
 import com.developer.filepicker.model.MarkedDeleteItemList;
 import com.developer.filepicker.model.MarkedExtractItemList;
 import com.developer.filepicker.model.MarkedItemList;
+import com.developer.filepicker.model.MarkedShareItemList;
 import com.developer.filepicker.widget.CopyCheckBox;
 import com.developer.filepicker.widget.DecryptCheckBox;
 import com.developer.filepicker.widget.EncryptCheckBox;
 import com.developer.filepicker.widget.DeleteCheckBox;
 import com.developer.filepicker.widget.ExtractCheckBox;
 import com.developer.filepicker.widget.MaterialCheckbox;
+import com.developer.filepicker.widget.ShareCheckBox;
 import com.developer.filepicker.widget.listeners.OnCheckedChangeListener;
 
 import java.io.File;
@@ -139,6 +141,7 @@ public class FileListAdapter extends BaseAdapter {
                 holder.encryptCheckBox.setVisibility(View.GONE);
                 holder.decryptCheckBox.setVisibility(View.GONE);
                 holder.extractCheckBox.setVisibility(View.GONE);
+                holder.shareCheckBox.setVisibility(View.GONE);
             } else {
                 holder.checkbox.setVisibility(View.VISIBLE);
                 holder.deleteCheckBox.setVisibility(View.GONE);
@@ -146,6 +149,7 @@ public class FileListAdapter extends BaseAdapter {
                 holder.encryptCheckBox.setVisibility(View.GONE);
                 holder.decryptCheckBox.setVisibility(View.GONE);
                 holder.extractCheckBox.setVisibility(View.GONE);
+                holder.shareCheckBox.setVisibility(View.GONE);
             }
         } else {
             holder.type_icon.setImageResource(R.mipmap.ic_type_file);
@@ -162,6 +166,7 @@ public class FileListAdapter extends BaseAdapter {
                 holder.copyCheckBox.setVisibility(View.INVISIBLE);
                 holder.encryptCheckBox.setVisibility(View.INVISIBLE);
                 holder.extractCheckBox.setVisibility(View.INVISIBLE);
+                holder.shareCheckBox.setVisibility(View.INVISIBLE);
             } else {
                 holder.checkbox.setVisibility(View.VISIBLE);
                 holder.deleteCheckBox.setVisibility(View.INVISIBLE);
@@ -169,6 +174,7 @@ public class FileListAdapter extends BaseAdapter {
                 holder.encryptCheckBox.setVisibility(View.GONE);
                 holder.decryptCheckBox.setVisibility(View.GONE);
                 holder.extractCheckBox.setVisibility(View.GONE);
+                holder.shareCheckBox.setVisibility(View.GONE);
             }
         }
         holder.type_icon.setContentDescription(item.getFilename());
@@ -198,14 +204,17 @@ public class FileListAdapter extends BaseAdapter {
                     holder.decryptCheckBox.setVisibility(View.VISIBLE);
                     holder.deleteCheckBox.setVisibility(View.VISIBLE);
                     holder.encryptCheckBox.setVisibility(View.GONE);
+                    holder.shareCheckBox.setVisibility(View.VISIBLE);
                 } else {
                     holder.decryptCheckBox.setVisibility(View.GONE);
                     holder.encryptCheckBox.setVisibility(View.VISIBLE);
+                    holder.shareCheckBox.setVisibility(View.VISIBLE);
                 }
                 holder.extractCheckBox.setVisibility(View.VISIBLE);
                 holder.checkbox.setVisibility(View.GONE);
                 holder.deleteCheckBox.setVisibility(View.VISIBLE);
                 holder.copyCheckBox.setVisibility(View.GONE);
+                holder.shareCheckBox.setVisibility(View.VISIBLE);
             }
 
             if (MarkedItemList.hasItem(item.getLocation())) {
@@ -235,6 +244,11 @@ public class FileListAdapter extends BaseAdapter {
                 holder.extractCheckBox.setChecked(true);
             } else{
                 holder.extractCheckBox.setChecked(false);
+            }
+            if(MarkedShareItemList.hasItem(item.getLocation())){
+                holder.shareCheckBox.setChecked(true);
+            } else{
+                holder.shareCheckBox.setChecked(false);
             }
         }
 
@@ -290,6 +304,11 @@ public class FileListAdapter extends BaseAdapter {
             public void onCheckedChanged(ExtractCheckBox extractCheckBox, boolean isChecked) {
 
             }
+
+            @Override
+            public void onCheckedChanged(ShareCheckBox shareCheckBox, boolean isChecked) {
+
+            }
         });
 
         holder.deleteCheckBox.setOnCheckedChangedListener(new OnCheckedChangeListener() {
@@ -342,6 +361,11 @@ public class FileListAdapter extends BaseAdapter {
             public void onCheckedChanged(ExtractCheckBox extractCheckBox, boolean isChecked) {
 
             }
+
+            @Override
+            public void onCheckedChanged(ShareCheckBox shareCheckBox, boolean isChecked) {
+
+            }
         });
 
         holder.decryptCheckBox.setOnCheckedChangedListener(new OnCheckedChangeListener() {
@@ -383,6 +407,11 @@ public class FileListAdapter extends BaseAdapter {
 
             @Override
             public void onCheckedChanged(ExtractCheckBox extractCheckBox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(ShareCheckBox shareCheckBox, boolean isChecked) {
 
             }
         });
@@ -439,6 +468,11 @@ public class FileListAdapter extends BaseAdapter {
 
             @Override
             public void onCheckedChanged(ExtractCheckBox extractCheckBox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(ShareCheckBox shareCheckBox, boolean isChecked) {
 
             }
 
@@ -505,7 +539,62 @@ public class FileListAdapter extends BaseAdapter {
             public void onCheckedChanged(ExtractCheckBox extractCheckBox, boolean isChecked) {
 
             }
+
+            @Override
+            public void onCheckedChanged(ShareCheckBox shareCheckBox, boolean isChecked) {
+
+            }
         });
+
+        holder.shareCheckBox.setOnCheckedChangedListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CopyCheckBox copyCheckBox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(EncryptCheckBox encryptCheckBox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(DeleteCheckBox buttonbox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(MaterialCheckbox checkbox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(DecryptCheckBox decryptCheckBox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(ExtractCheckBox extractCheckBox, boolean isChecked) {
+
+            }
+
+            @Override
+            public void onCheckedChanged(ShareCheckBox shareCheckBox, boolean isChecked) {
+                item.setMarked(isChecked);
+                if (item.isMarked()) {
+                    if (properties.selection_mode == DialogConfigs.MULTI_MODE) {
+                        MarkedShareItemList.addSelectedItem(item);
+                    } else {
+                        MarkedShareItemList.addSingleFile(item);
+                    }
+                } else {
+                    if(MarkedShareItemList.hasItem(item.getLocation())){
+                        MarkedShareItemList.removeSelectedItem(item.getLocation());
+                    }
+                }
+                notifyItemChecked.notifyShareIsClicked();
+            }
+        });
+
 
         holder.extractCheckBox.setOnCheckedChangedListener(new OnCheckedChangeListener() {
             @Override
@@ -549,6 +638,13 @@ public class FileListAdapter extends BaseAdapter {
                 }
                 notifyItemChecked.notifyExtractIsClicked();
             }
+
+            @Override
+            public void onCheckedChanged(ShareCheckBox shareCheckBox, boolean isChecked) {
+
+            }
+
+
         });
 
         return view;
@@ -566,6 +662,7 @@ public class FileListAdapter extends BaseAdapter {
         EncryptCheckBox encryptCheckBox;
         DecryptCheckBox decryptCheckBox;
         ExtractCheckBox extractCheckBox;
+        ShareCheckBox shareCheckBox;
 
         ViewHolder(final View itemView) {
             name = itemView.findViewById(R.id.fname);
@@ -577,6 +674,7 @@ public class FileListAdapter extends BaseAdapter {
             encryptCheckBox = itemView.findViewById(R.id.button4);
             decryptCheckBox = itemView.findViewById(R.id.button5);
             extractCheckBox = itemView.findViewById(R.id.button6);
+            shareCheckBox = itemView.findViewById(R.id.button7);
 
             type_icon.setOnClickListener(new View.OnClickListener() {
 
@@ -588,7 +686,7 @@ public class FileListAdapter extends BaseAdapter {
                     } else {
                         try {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(f), getMimeType(f.getPath()));
+                            intent.setDataAndType(Uri.fromFile(f), "*/*");
                             context.startActivity(intent);
                         } catch (ActivityNotFoundException e) {
                             // no Activity to handle this kind of files

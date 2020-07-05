@@ -12,4 +12,6 @@ public interface DialogSelectionListener {
     void onSelectedFilePathsToDecrypt(String[] files);
 
     void onSelectedPathsToExtract(String[] files);
+
+    void onSelectedFilePathsToShare(String[] files);
 }
