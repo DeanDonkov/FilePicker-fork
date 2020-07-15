@@ -199,7 +199,7 @@ public class FileListAdapter extends BaseAdapter {
             }
 
             File file = new File(item.getLocation());
-            if(file.getParent().equals("/mnt/sdcard/.ScaWorld")){
+            if(file.getParent().equals("/mnt/sdcard/.ProtectoWorld")){
                 if(file.getName().contains(".pattern")){
                     holder.decryptCheckBox.setVisibility(View.VISIBLE);
                     holder.deleteCheckBox.setVisibility(View.VISIBLE);
